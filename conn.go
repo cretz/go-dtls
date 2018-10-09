@@ -2,6 +2,7 @@ package dtls
 
 import (
 	"net"
+	"sync"
 	"time"
 )
 
@@ -9,6 +10,9 @@ type Conn struct {
 	conn   net.PacketConn
 	config Config
 	client bool
+
+	tlsInfoLock sync.Mutex
+	tlsInfos    map[string]tlsInfo
 }
 
 var _ net.PacketConn = &Conn{}
@@ -42,26 +46,41 @@ func Server(conn net.PacketConn, config *Config) *Conn {
 	return c
 }
 
+// Handshake performs handshake only if not already done
 func (c *Conn) Handshake(network, addr string) error {
-	// TODO: this is a handshake only if not already done
-	panic("TODO")
+	info, _ := c.tlsInfo(network, addr, true)
+	return info.handshake(nil)
 }
 
-func (c *Conn) IsEstablished(network, addr string) bool {
-	panic("TODO")
+func (c *Conn) tlsInfo(network, addr string, createIfNotFound bool) (info tlsInfo, created bool) {
+	// Get info andor create if we're allowed
+	c.tlsInfoLock.Lock()
+	defer c.tlsInfoLock.Unlock()
+	key := network + "!" + addr
+	if info = c.tlsInfos[key]; info == nil && createIfNotFound {
+		info = newTLSInfo(c, network, addr)
+		c.tlsInfos[key] = info
+		created = true
+	}
+	return
 }
 
 func (c *Conn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
-	// TODO: this is inefficient, do better w/ a buffer or something
+	// TODO: this is inefficient, do better w/ a shared buffer or something
+	// TODO: configurable MTU
 	var buf [508]byte
-	n, addr, err = c.conn.ReadFrom(buf[:])
-	if err != nil {
-		return 0, addr, err
-	}
-	if c.client {
-		n, err = c.clientReadFrom(buf[:n], addr, p)
-	} else {
-		n, err = c.serverReadFrom(buf[:n], addr, p)
+	// We continually read until we have read some data. No data and no error
+	// means that it wants us to continue, e.g. for a handshake.
+	for n == 0 && err == nil {
+		if n, addr, err = c.conn.ReadFrom(buf[:]); err != nil {
+			n = 0
+			break
+		}
+		if c.client {
+			n, err = c.clientReadFrom(buf[:n], addr, p)
+		} else {
+			n, err = c.serverReadFrom(buf[:n], addr, p)
+		}
 	}
 	return
 }
