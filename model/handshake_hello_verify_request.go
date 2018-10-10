@@ -3,7 +3,7 @@ package model
 const HandshakeTypeHelloVerifyRequest HandshakeType = 3
 
 type HandshakeHelloVerifyRequest struct {
-	ServerVersion ProtocolVersion
+	ServerVersion uint16
 	Cookie        []byte
 }
 

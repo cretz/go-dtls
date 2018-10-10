@@ -11,7 +11,7 @@ const (
 
 type DTLSRecord struct {
 	Type            RecordType
-	ProtocolVersion ProtocolVersion
+	ProtocolVersion uint16
 	Epoch           uint16
 	SequenceNumber  uint64
 	Fragment        []byte

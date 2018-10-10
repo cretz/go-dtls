@@ -3,10 +3,10 @@ package model
 const HandshakeTypeServerHello HandshakeType = 2
 
 type HandshakeServerHello struct {
-	ServerVersion     ProtocolVersion
-	Random            HandshakeRandom
+	ServerVersion     uint16
+	Random            []byte
 	SessionID         []byte
-	CipherSuite       CipherSuite
+	CipherSuite       uint16
 	CompressionMethod uint8
 	Extensions        []Extension
 }

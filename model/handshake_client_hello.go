@@ -2,12 +2,14 @@ package model
 
 const HandshakeTypeClientHello HandshakeType = 1
 
+const CompressionMethodNone uint8 = 0
+
 type HandshakeClientHello struct {
-	ClientVersion      ProtocolVersion
-	Random             HandshakeRandom
+	ClientVersion      uint16
+	Random             []byte
 	SessionID          []byte
 	Cookie             []byte
-	CipherSuites       []CipherSuite
+	CipherSuites       []uint16
 	CompressionMethods []uint8
 	Extensions         []Extension
 }

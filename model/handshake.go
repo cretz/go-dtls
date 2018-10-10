@@ -50,11 +50,6 @@ func (h *Handshake) Body() (HandshakeBody, error) {
 	panic("TODO")
 }
 
-type HandshakeRandom struct {
-	GMTUnixTime uint32
-	RandomBytes []byte
-}
-
 type HandshakeBody interface {
 	Type() HandshakeType
 	Marshal() []byte

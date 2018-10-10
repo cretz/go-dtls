@@ -9,12 +9,14 @@ const (
 	ClientCertificateTypeDSSSign    ClientCertificateType = 2
 	ClientCertificateTypeRSAFixedDH ClientCertificateType = 3
 	ClientCertificateTypeDSSFixedDH ClientCertificateType = 4
+
+	ClientCertificateTypeECDSASign ClientCertificateType = 64
 )
 
 type HandshakeCertificateRequest struct {
 	CertificateTypes             []ClientCertificateType
 	SupportedSignatureAlgorithms []SignatureAndHashAlgorithm
-	CertificateAuthorities       []byte
+	CertificateAuthorities       [][]byte
 }
 
 func (*HandshakeCertificateRequest) Type() HandshakeType { return HandshakeTypeCertificateRequest }
