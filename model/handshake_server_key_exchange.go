@@ -3,7 +3,8 @@ package model
 const HandshakeTypeServerKeyExchange HandshakeType = 12
 
 type HandshakeServerKeyExchange struct {
-	Key []byte
+	Params       []byte
+	SignedParams *DigitallySigned
 }
 
 func (*HandshakeServerKeyExchange) Type() HandshakeType { return HandshakeTypeServerKeyExchange }

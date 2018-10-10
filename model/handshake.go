@@ -1,22 +1,6 @@
 package model
 
-import "time"
-
 type HandshakeType uint8
-
-const (
-// HandshakeTypeHelloRequest       HandshakeType = 0
-// HandshakeTypeClientHello        HandshakeType = 1
-// HandshakeTypeServerHello        HandshakeType = 2
-// HandshakeTypeHelloVerifyRequest HandshakeType = 3
-// HandshakeTypeCertificate        HandshakeType = 11
-// HandshakeTypeServerKeyExchange  HandshakeType = 12
-// HandshakeTypeCertificateRequest HandshakeType = 13
-// HandshakeTypeServerHelloDone    HandshakeType = 14
-// HandshakeTypeCertificateVerify  HandshakeType = 15
-// HandshakeTypeClientKeyExchange  HandshakeType = 16
-// HandshakeTypeFinished           HandshakeType = 20
-)
 
 var HandshakeBodyCreators = map[HandshakeType]func() HandshakeBody{
 	HandshakeTypeHelloRequest:       func() HandshakeBody { return &HandshakeHelloRequest{} },
@@ -26,6 +10,10 @@ var HandshakeBodyCreators = map[HandshakeType]func() HandshakeBody{
 	HandshakeTypeCertificate:        func() HandshakeBody { return &HandshakeCertificate{} },
 	HandshakeTypeServerKeyExchange:  func() HandshakeBody { return &HandshakeServerKeyExchange{} },
 	HandshakeTypeCertificateRequest: func() HandshakeBody { return &HandshakeCertificateRequest{} },
+	HandshakeTypeServerHelloDone:    func() HandshakeBody { return &HandshakeServerHelloDone{} },
+	HandshakeTypeCertificateVerify:  func() HandshakeBody { return &HandshakeCertificateVerify{} },
+	HandshakeTypeClientKeyExchange:  func() HandshakeBody { return &HandshakeClientKeyExchange{} },
+	HandshakeTypeFinished:           func() HandshakeBody { return &HandshakeFinished{} },
 }
 
 type HandshakeFragment struct {
@@ -63,7 +51,7 @@ func (h *Handshake) Body() (HandshakeBody, error) {
 }
 
 type HandshakeRandom struct {
-	Time        time.Time
+	GMTUnixTime uint32
 	RandomBytes []byte
 }
 
