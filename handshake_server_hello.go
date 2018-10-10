@@ -1,4 +1,4 @@
-package handshake
+package dtls
 
 import (
 	"context"
@@ -11,11 +11,14 @@ type serverHello struct {
 	Certificate        *model.HandshakeCertificate
 	ServerKeyExchange  *model.HandshakeServerKeyExchange
 	CertificateRequest *model.HandshakeCertificateRequest
+	// Only present if this was a successful resumption
+	Finished *model.HandshakeFinished
 }
 
 func receiveServerHello(
 	ctx context.Context,
 	conn AddrConn,
+	resumeSessionID []byte,
 ) (*model.HandshakeHelloRequest, *model.HandshakeHelloVerifyRequest, *serverHello, error) {
 	panic("TODO")
 }

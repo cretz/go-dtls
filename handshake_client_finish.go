@@ -1,4 +1,4 @@
-package handshake
+package dtls
 
 import "context"
 

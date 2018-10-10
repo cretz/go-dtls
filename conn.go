@@ -17,9 +17,6 @@ type Conn struct {
 
 var _ net.PacketConn = &Conn{}
 
-type Config struct {
-}
-
 func Client(conn net.PacketConn, config *Config) *Conn {
 	c := &Conn{conn: conn, client: true}
 	if config != nil {

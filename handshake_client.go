@@ -1,26 +1,26 @@
-package handshake
+package dtls
 
 import (
 	"context"
 	"time"
 )
 
-func ClientHandshake(ctx context.Context, conn AddrConn) error {
-	srvHello, err := clientHandshakeHello(ctx, conn)
-	if err == nil {
+func clientHandshake(ctx context.Context, conn AddrConn, resumeSessionID []byte) error {
+	srvHello, err := clientHandshakeHello(ctx, conn, resumeSessionID)
+	if err == nil && srvHello.Finished == nil {
 		err = clientHandshakeFinish(ctx, conn, srvHello)
 	}
 	return err
 }
 
-func clientHandshakeHello(ctx context.Context, conn AddrConn) (*serverHello, error) {
+func clientHandshakeHello(ctx context.Context, conn AddrConn, resumeSessionID []byte) (*serverHello, error) {
 MainLoop:
 	// TODO: configurable timeout/interval
 	var cookie []byte
 	for timeout := time.Second; timeout <= 64*time.Second; timeout *= 2 {
 		// Send client hello
 		localCtx, localCtxCancelFn := context.WithTimeout(ctx, timeout)
-		err := sendClientHello(localCtx, conn, cookie)
+		err := sendClientHello(localCtx, conn, cookie, resumeSessionID)
 		localCtxCancelFn()
 		if err == context.DeadlineExceeded {
 			// Timeout, just move on
@@ -31,7 +31,7 @@ MainLoop:
 
 		// Receive hello request, verify hello, or server hello
 		localCtx, localCtxCancelFn = context.WithTimeout(ctx, timeout)
-		helloReq, verifyReq, srvHello, err := receiveServerHello(localCtx, conn)
+		helloReq, verifyReq, srvHello, err := receiveServerHello(localCtx, conn, resumeSessionID)
 		localCtxCancelFn()
 		if err == context.DeadlineExceeded {
 			// Timeout, just move on
